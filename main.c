@@ -1,6 +1,7 @@
 //projeto simples de um interpretador/emulador chip-8
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 typedef struct CHIP8 {
     //espaco pra memoria
@@ -20,16 +21,16 @@ typedef struct CHIP8 {
     //segundo o guia isso funciona tipo o delay, só que para o som 
     uint8_t sound;
     uint8_t registers[16];
-    
+
 }CHIP8; 
 
-
-
-int main (){
-
-
+void cleanMemory(CHIP8* chip8){
+    memset(chip8, 0, sizeof(CHIP8));
 }
 
-void Initialize(){
-    //codigo
+void Initialize(CHIP8* chip8){
+    cleanMemory(chip8);
+    chip8->PC = 0x200;
+    chip8->sp = 0;
+    chip8->I = 0;
 } 
