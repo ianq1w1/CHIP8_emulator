@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include "font.h"
 
 typedef struct CHIP8 {
     //espaco pra memoria
@@ -20,17 +24,58 @@ typedef struct CHIP8 {
     uint8_t delay;
     //segundo o guia isso funciona tipo o delay, só que para o som 
     uint8_t sound;
+
     uint8_t registers[16];
+
+    uint8_t fontArr[80];
 
 }CHIP8; 
 
 void cleanMemory(CHIP8* chip8){
-    memset(chip8, 0, sizeof(CHIP8));
+    memset(chip8->memory, 0, sizeof(chip8->memory));
 }
 
-void Initialize(CHIP8* chip8){
+void initialize(CHIP8* chip8){
     cleanMemory(chip8);
     chip8->PC = 0x200;
     chip8->sp = 0;
     chip8->I = 0;
 } 
+
+void fontInsert(CHIP8* chip8){
+    memcpy(chip8->memory, chip8->fontArr, sizeof(chip8->memory));
+}
+
+bool isFull(CHIP8* chip8){
+    uint16_t* stackLIFO = chip8->stack;
+    uint8_t stackpointer = chip8->sp;
+
+    if(stackpointer >= 16){
+        printf("pode nao...\n");
+        return true;
+    }
+    return false;
+}
+
+//adicionando endereço da função!
+void pushStack(CHIP8* chip8, uint16_t* function){
+   uint16_t* stackLIFO = chip8->stack;
+   uint8_t* stackpointer = &(chip8->sp);
+   uint16_t inst = function;
+   uint16_t* programCounter = &(chip8->PC);
+   
+   isFull(chip8);
+   stackLIFO[*stackpointer] = inst;
+   *programCounter = inst;
+   (*stackpointer++);
+}
+
+void popStack(CHIP8* chip8, uint16_t* function ){
+   uint16_t* stackLIFO = chip8->stack;
+   uint8_t* stackpointer = &(chip8->sp);
+   uint16_t inst = function;
+   uint16_t* programCounter = &(chip8->PC);
+}
+
+
+
