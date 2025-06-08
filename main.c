@@ -26,7 +26,7 @@ typedef struct CHIP8 {
     //segundo o guia isso funciona tipo o delay, só que para o som 
     uint8_t sound;
 
-    uint8_t registers[16];
+    uint8_t registers[15];
 
     uint8_t fontArr[80];
 
@@ -89,30 +89,55 @@ void popStack(CHIP8* chip8){
    uint16_t* programCounter = &(chip8->PC);
 
    isEmpty(chip8);
-   (*stackpointer--);
+   (*stackpointer)--;
    stackLIFO[*stackpointer] = 0;
    programCounter = stackLIFO[*stackpointer];
 
 }
-
-//ok, eu preciso realizar o fetch dessas instruções (2 bytes//16 bits), so q nao posso soma-los, o pq? tenho q 
-//revisar bitwise opperations
 
 //fetch manda a instrução pra decode, e pelo q entendi a stack so armazena o endereço de memoria (o qual é o valor de PC)
 //entao memory[PC] = instruções (eu acho)
 
 void fetch(CHIP8* chip8){
     uint16_t* PCfetch = &(chip8->PC); 
-    uint16_t byte1 = &(chip8->memory[*PCfetch]);
-    uint16_t byte2 = &(chip8->memory[*PCfetch + 1]);
-
-    uint16_t instruction = byte1 << 8 | byte2;
-
+    uint16_t bit1 = &(chip8->memory[*PCfetch]);
+    uint16_t bit2 = &(chip8->memory[*PCfetch + 1]);
+//aqui eu criei a variavel de instrução que eu, movo o primeiro bit 8 posições à esquerda, dando espaço o suficiente à direita
+//assim consigo utilizar um OR operator pra alocar esse outro bit à direita (espaços de zero) 
+    uint16_t instruction = bit1 << 8 | bit2;
+    (*PCfetch) += 2;
+//incremento PC em 2 pra pular pro proximo bloco de instrução
     decode(&instruction);
 
 }
 
 void decode(uint16_t *fetchedInstruction){
+    // essas letras estranhas, estao no guia, mas basicamente to dividindo aq cada nibble/ byte da instrução
+    //0xf000 pega o primeiro nibble, 0x0f00 pega o segundo nibble (saca só esse macete!)
+    //iso pq cada 0 no hex seria um half byte e o F = 15 em hex
+    // entao em binario ficaria 0000 1111 0000 0000 (logo com um operador AND iria zerar todos os nibbles q nao quero (fora do 1111))
+    
+    //nibbles/ half bytes
+    uint16_t firstNibble = *fetchedInstruction >> 12;
+    uint16_t X = (*fetchedInstruction & 0x0F00) >> 8;
+    uint8_t Y = (*fetchedInstruction & 0x00F0) >> 4;
+    uint8_t N = *fetchedInstruction & 0x000F;
+    
+    //segundo byte (terceiro e quarto nibbles)
+    uint8_t NN = *fetchedInstruction & 0x00FF;
+    //segundo, terceiro e quarto nibbles
+    uint16_t NNN = *fetchedInstruction & 0x0FFF;
+
+    switch (firstNibble)
+    {
+    case constant expression:
+        /* code */
+        break;
+    
+    default:
+        break;
+    }
+    
 
 }
 
