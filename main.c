@@ -26,7 +26,7 @@ typedef struct CHIP8 {
     //segundo o guia isso funciona tipo o delay, só que para o som 
     uint8_t sound;
 
-    uint8_t registers[15];
+    uint8_t registers[16];
 
     uint8_t fontArr[80];
 
@@ -107,19 +107,22 @@ void fetch(CHIP8* chip8){
     uint16_t instruction = bit1 << 8 | bit2;
     (*PCfetch) += 2;
 //incremento PC em 2 pra pular pro proximo bloco de instrução
-    decode(&instruction);
+    decode(&instruction, chip8);
 
 }
 
-void decode(uint16_t *fetchedInstruction){
+void decode(uint16_t *fetchedInstruction, CHIP8* chip8){
     // essas letras estranhas, estao no guia, mas basicamente to dividindo aq cada nibble/ byte da instrução
     //0xf000 pega o primeiro nibble, 0x0f00 pega o segundo nibble (saca só esse macete!)
     //iso pq cada 0 no hex seria um half byte e o F = 15 em hex
     // entao em binario ficaria 0000 1111 0000 0000 (logo com um operador AND iria zerar todos os nibbles q nao quero (fora do 1111))
     
-    //nibbles/ half bytes
+    //nibbles/ half bytes  
+    //(0xF000)
     uint16_t firstNibble = *fetchedInstruction >> 12;
+    //bits 8-11 segundo nibble
     uint16_t X = (*fetchedInstruction & 0x0F00) >> 8;
+    //bits de 4-7 terceiro nibble
     uint8_t Y = (*fetchedInstruction & 0x00F0) >> 4;
     uint8_t N = *fetchedInstruction & 0x000F;
     
@@ -128,12 +131,35 @@ void decode(uint16_t *fetchedInstruction){
     //segundo, terceiro e quarto nibbles
     uint16_t NNN = *fetchedInstruction & 0x0FFF;
 
+
+    //segundo o guia, isso nao precisaria de uma função separada, já que... isso meio q já é 
     switch (firstNibble)
     {
-    case constant expression:
-        /* code */
+    case 0x0:
+        if(X == 0x0){
+            if(Y == 0xE){
+              if(N == 0x0){
+                //clear screen
+              }else if(N == 0xE){
+                //pegar o retorno da função (da stack??) mas... nera pra stack armazenar so endereços?
+              }  
+            }
+        }
         break;
-    
+    case 0x1:
+        chip8->PC = NNN;
+        break;
+    case 0x6:
+            X = NN;
+        break;
+    case 0x7:
+            X += NN;
+        break;
+    case 0xA:
+        chip8->I;
+        break;
+    case 0xD:
+        chip8->Xdisplay;
     default:
         break;
     }
