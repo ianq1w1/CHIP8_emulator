@@ -103,10 +103,10 @@ void popStack(CHIP8* chip8){
 
 void fetch(CHIP8* chip8){
     uint16_t* PCfetch = &(chip8->PC); 
-    uint8_t byte1 = &(chip8->memory[*PCfetch]);
-    uint8_t byte2 = &(chip8->memory[*PCfetch + 1]);
+    uint16_t byte1 = &(chip8->memory[*PCfetch]);
+    uint16_t byte2 = &(chip8->memory[*PCfetch + 1]);
 
-    uint8_t instruction = byte1 + byte2;
+    uint16_t instruction = byte1 << 8 | byte2;
 
     decode(&instruction);
 
