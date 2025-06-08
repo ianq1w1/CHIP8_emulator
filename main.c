@@ -13,7 +13,8 @@ typedef struct CHIP8 {
     //program counter
     uint16_t PC; 
     //display(nao sei como faz isso ainda)
-    uint8_t display;
+    uint8_t Xdisplay[64];
+    uint8_t Ydisplay[32];
     //usado para apontar locais na memoria (??)
     uint16_t I;
     //stack ! que chama funções e retorna delas (pilha né...)
@@ -51,7 +52,18 @@ bool isFull(CHIP8* chip8){
     uint8_t stackpointer = chip8->sp;
 
     if(stackpointer >= 16){
-        printf("pode nao...\n");
+        printf("cheiao papi...\n");
+        return true;
+    }
+    return false;
+}
+
+bool isEmpty(CHIP8* chip8){
+    uint16_t* stackLIFO = chip8->stack;
+    uint8_t stackpointer = chip8->sp;
+
+    if(stackpointer <= 0){
+        printf("vazio papi...\n");
         return true;
     }
     return false;
@@ -62,20 +74,46 @@ void pushStack(CHIP8* chip8, uint16_t* function){
    uint16_t* stackLIFO = chip8->stack;
    uint8_t* stackpointer = &(chip8->sp);
    uint16_t inst = function;
-   uint16_t* programCounter = &(chip8->PC);
+   //uint16_t* programCounter = &(chip8->PC);
    
    isFull(chip8);
-   stackLIFO[*stackpointer] = inst;
-   *programCounter = inst;
-   (*stackpointer++);
+   stackLIFO[*stackpointer] = chip8->PC;
+   //*programCounter += 2;
+   (*stackpointer)++;
 }
 
-void popStack(CHIP8* chip8, uint16_t* function ){
+void popStack(CHIP8* chip8){
    uint16_t* stackLIFO = chip8->stack;
    uint8_t* stackpointer = &(chip8->sp);
-   uint16_t inst = function;
+  // uint16_t inst = function;
    uint16_t* programCounter = &(chip8->PC);
+
+   isEmpty(chip8);
+   (*stackpointer--);
+   stackLIFO[*stackpointer] = 0;
+   programCounter = stackLIFO[*stackpointer];
+
 }
 
+//ok, eu preciso realizar o fetch dessas instruções (2 bytes//16 bits), so q nao posso soma-los, o pq? tenho q 
+//revisar bitwise opperations
+
+//fetch manda a instrução pra decode, e pelo q entendi a stack so armazena o endereço de memoria (o qual é o valor de PC)
+//entao memory[PC] = instruções (eu acho)
+
+void fetch(CHIP8* chip8){
+    uint16_t* PCfetch = &(chip8->PC); 
+    uint8_t byte1 = &(chip8->memory[*PCfetch]);
+    uint8_t byte2 = &(chip8->memory[*PCfetch + 1]);
+
+    uint8_t instruction = byte1 + byte2;
+
+    decode(&instruction);
+
+}
+
+void decode(uint16_t *fetchedInstruction){
+
+}
 
 
